@@ -1,0 +1,205 @@
+# Grid Inventory System - Scene Setup Guide
+
+This guide will walk you through the process of setting up a complete inventory scene with the 4x4 grid inventory system.
+
+## Prerequisites
+- Make sure all scripts (InventoryItem.cs, InventorySlot.cs, InventorySystem.cs) are compiled
+- Create the InventorySlot prefab following the InventorySlot_Setup_Instructions.txt
+- Create at least one test item scriptable object
+
+## Step 1: Create a New Scene
+
+1. Go to File > New Scene (or use the existing InventoryScene if available)
+2. Save the scene as "InventoryScene" in the Assets/Scenes/Inventory folder
+
+## Step 2: Set Up the Canvas
+
+1. Create a Canvas:
+   - Right-click in the Hierarchy panel and select UI > Canvas
+   - Rename it to "InventoryCanvas"
+
+2. Configure Canvas settings:
+   - Set Canvas properties in the Inspector:
+     - Render Mode: Screen Space - Overlay
+     - Pixel Perfect: Checked
+   
+3. Add Canvas Scaler component:
+   - With Canvas selected, find the Canvas Scaler component
+   - Set UI Scale Mode to "Scale With Screen Size"
+   - Set Reference Resolution to 1920 x 1080 (or your preferred resolution)
+   - Set Match to 0.5 (width and height equally)
+
+4. Add EventSystem if not automatically added:
+   - If you don't see an EventSystem in the Hierarchy, add one by right-clicking and selecting UI > Event System
+
+## Step 3: Create the Inventory Grid Container
+
+1. Create a Panel for the grid container:
+   - Right-click on the Canvas and select UI > Panel
+   - Rename it to "InventoryGridContainer"
+   
+2. Set up Panel properties:
+   - Rect Transform:
+     - Width: 400
+     - Height: 400
+     - Anchors: Middle-Center
+   - Image Component:
+     - Color: Dark gray (#444444) with around 0.8 alpha
+   
+3. Add GridLayoutGroup component:
+   - With the InventoryGridContainer selected, click "Add Component"
+   - Search for and add "Grid Layout Group"
+   - Set its properties:
+     - Cell Size: X=90, Y=90 (slightly larger than slots for spacing)
+     - Spacing: X=10, Y=10
+     - Start Corner: Upper Left
+     - Start Axis: Horizontal
+     - Child Alignment: Middle Center
+     - Constraint: Fixed Column Count
+     - Constraint Count: 4
+
+## Step 4: Add the InventorySystem Component
+
+1. Create an empty GameObject for the inventory system:
+   - Right-click in the Hierarchy and select Create Empty
+   - Rename it to "InventorySystem"
+   
+2. Add the InventorySystem script:
+   - With the InventorySystem GameObject selected, click "Add Component"
+   - Search for and add the "InventorySystem" script
+   
+3. Configure the InventorySystem properties:
+   - Grid Width: 4
+   - Grid Height: 4
+   - Grid Container: Drag the InventoryGridContainer from the Hierarchy
+   - Slot Prefab: Drag the InventorySlot prefab from the Project panel
+
+## Step 5: Create a Test Script to Add Items
+
+1. Create a new C# script called "InventoryTester":
+   - Right-click in the Project panel > Create > C# Script
+   - Name it "InventoryTester"
+
+2. Double-click to open the script and replace its contents with:
+
+```csharp
+using UnityEngine;
+
+public class InventoryTester : MonoBehaviour
+{
+    [SerializeField] private InventorySystem inventorySystem;
+    [SerializeField] private InventoryItem[] testItems;
+    
+    private void Start()
+    {
+        // Verify references
+        if (inventorySystem == null)
+        {
+            Debug.LogError("InventorySystem reference is missing!");
+            return;
+        }
+        
+        if (testItems == null || testItems.Length == 0)
+        {
+            Debug.LogWarning("No test items assigned!");
+        }
+    }
+    
+    public void AddRandomItem()
+    {
+        if (testItems == null || testItems.Length == 0)
+            return;
+            
+        // Select a random item from the test items array
+        int randomIndex = Random.Range(0, testItems.Length);
+        InventoryItem itemToAdd = testItems[randomIndex];
+        
+        // Create a new instance to avoid modifying the original scriptable object
+        InventoryItem itemInstance = itemToAdd.CreateInstance();
+        
+        // Randomize stack size for stackable items
+        if (itemInstance.IsStackable())
+        {
+            itemInstance.currentStackSize = Random.Range(1, itemInstance.maxStackSize + 1);
+        }
+        
+        // Add the item to the inventory
+        bool added = inventorySystem.AddItem(itemInstance);
+        
+        if (added)
+        {
+            Debug.Log($"Added {itemInstance.itemName} x{itemInstance.currentStackSize} to inventory");
+        }
+        else
+        {
+            Debug.Log("Failed to add item - inventory might be full");
+        }
+    }
+    
+    public void ClearInventory()
+    {
+        inventorySystem.ClearInventory();
+        Debug.Log("Inventory cleared");
+    }
+}
+```
+
+3. Add the InventoryTester to the scene:
+   - Add the script to the InventorySystem GameObject
+   - Set the references in the Inspector:
+     - Inventory System: Drag the InventorySystem component from the same GameObject
+     - Test Items: Create an array and add your test item scriptable objects
+
+## Step 6: Create Test Buttons
+
+1. Create an "Add Item" button:
+   - Right-click on Canvas and select UI > Button
+   - Rename it to "AddItemButton"
+   - Position it somewhere convenient on the screen
+   - Change the button text to "Add Random Item"
+   - In the Button component's onClick event:
+     - Click the + button
+     - Drag the InventorySystem GameObject to the object field
+     - Select the function: InventoryTester.AddRandomItem()
+
+2. Create a "Clear Inventory" button:
+   - Right-click on Canvas and select UI > Button
+   - Rename it to "ClearInventoryButton"
+   - Position it below the Add Item button
+   - Change the button text to "Clear Inventory"
+   - In the Button component's onClick event:
+     - Click the + button
+     - Drag the InventorySystem GameObject to the object field
+     - Select the function: InventoryTester.ClearInventory()
+
+## Step 7: Test the System
+
+1. Play the scene in the editor
+2. Click the "Add Random Item" button several times to add items to the inventory
+3. Test interactions:
+   - Click on items to select them
+   - Click on other slots to move items
+4. Click "Clear Inventory" to empty all slots
+5. Verify that all functionality works as expected
+
+## Troubleshooting
+
+If items don't appear in slots:
+- Make sure your item scriptable objects have an icon assigned
+- Check Console for any error messages
+- Verify all references are properly set in the Inspector
+
+If item interaction doesn't work:
+- Make sure the EventSystem is present in the scene
+- Verify that Button components on slots are working
+- Check that raycast targets are enabled on the slot images
+
+## Next Steps
+
+Once the basic system is working, you can expand it with:
+- Drag and drop functionality
+- Item tooltips on hover
+- Better visual feedback for selected slots
+- Save/load functionality
+- Custom item types with different behaviors
+

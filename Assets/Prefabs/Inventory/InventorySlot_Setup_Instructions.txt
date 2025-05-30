@@ -1,0 +1,96 @@
+# InventorySlot Prefab Setup Instructions
+
+## Overview
+This document provides step-by-step instructions for creating the InventorySlot prefab needed for the Grid Inventory System.
+
+## Prerequisites
+- Make sure you have TextMeshPro package imported in your project
+- Ensure the InventorySlot.cs script is properly compiled
+
+## Step 1: Create the Basic Structure
+
+1. In the Unity Editor, right-click in the Hierarchy panel and select UI > Image
+   - This creates a Canvas (if not already present) with an Image GameObject
+   - Rename this Image to "InventorySlot"
+
+2. With the InventorySlot selected, set its properties in the Inspector:
+   - Rect Transform:
+     - Width: 80
+     - Height: 80
+     - Anchors: Middle-Center
+   - Image Component:
+     - Source Image: None (or use a square sprite if you have one)
+     - Color: Light gray (#BBBBBB) or your preferred slot background color
+     - Image Type: Simple
+     - Raycast Target: Checked (to detect clicks)
+
+## Step 2: Add Child Elements
+
+1. Create Item Icon:
+   - Right-click on the InventorySlot in the Hierarchy and select UI > Image
+   - Rename this to "ItemIcon"
+   - Set its properties:
+     - Rect Transform: 
+       - Width: 64
+       - Height: 64
+       - Anchors: Middle-Center
+     - Image Component:
+       - Color: White
+       - Raycast Target: Unchecked
+       - Enabled: Unchecked (will be enabled when an item is added)
+
+2. Create Stack Size Text:
+   - Right-click on the InventorySlot and select UI > Text - TextMeshPro
+   - Rename this to "StackSizeText"
+   - Set its properties:
+     - Rect Transform:
+       - Width: 30
+       - Height: 30
+       - Anchors: Bottom-Right
+       - Pivot: (1, 0)
+       - Position: Slightly offset from bottom-right corner
+     - TextMeshProUGUI Component:
+       - Text: "99" (for visual setup only)
+       - Font Size: 24
+       - Color: White
+       - Alignment: Center
+       - Overflow: Overflow
+     - Add Outline or Shadow effect if desired for better readability
+   - Set this GameObject to inactive initially (it will be activated when items are stacked)
+
+## Step 3: Add Components to InventorySlot
+
+1. Add Button Component:
+   - With InventorySlot selected, click "Add Component" in the Inspector
+   - Search for and add "Button"
+   - Set Transition to "Color Tint"
+   - Configure Normal/Highlighted/Pressed/Selected colors as desired
+   - Leave onClick events empty (will be handled in code)
+
+2. Add InventorySlot Script:
+   - With InventorySlot still selected, click "Add Component" again
+   - Search for and add the "InventorySlot" script
+   - Set the references in the Inspector:
+     - Item Icon: Drag the ItemIcon GameObject from Hierarchy
+     - Slot Background: Drag the InventorySlot Image component
+     - Stack Size Text: Drag the StackSizeText TextMeshProUGUI component
+   - Set the colors:
+     - Empty Slot Color: Light gray (#BBBBBB)
+     - Occupied Slot Color: White (#FFFFFF)
+
+## Step 4: Create the Prefab
+
+1. Create the prefab:
+   - Drag the InventorySlot from the Hierarchy into the Prefabs/Inventory folder in the Project panel
+   - This creates a prefab asset that can be reused
+
+2. Test the prefab:
+   - Delete the original from the Hierarchy
+   - Drag the prefab from the Project panel back into the scene
+   - Verify it looks and functions as expected
+
+## Notes
+- You may need to adjust sizes and colors based on your game's visual style
+- The InventorySlot script assumes certain names for child objects if references aren't set
+- If you add additional features (like hover effects), be sure to update the prefab
+
